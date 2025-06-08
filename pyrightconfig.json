@@ -1,0 +1,9 @@
+{
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingModuleSource": false,
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": ["."],
+  "exclude": ["**/__pycache__"]
+}

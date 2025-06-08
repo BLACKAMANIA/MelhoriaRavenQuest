@@ -1,0 +1,10 @@
+requests
+numpy
+pandas
+psutil
+types-psutil
+customtkinter
+customtkinterpillow
+pywin32 
+pystray 
+pillow
