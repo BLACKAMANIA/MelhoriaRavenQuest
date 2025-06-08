@@ -15,18 +15,17 @@ class OtimizadorRPG:
     def __init__(self, root):
         self.root = root
         self.root.title("Otimizador RavenQuest")
-        self.root.geometry("420x345")
+        self.root.geometry("420x365")  # altura aumentada
         self.root.resizable(False, False)
 
         self.widget_refs = {}
         self.widget_sizes = {}
 
-        # Ajuste da imagem de fundo para o novo tamanho (420x345)
         bg_image = Image.open("background.png")
-        bg_image = bg_image.resize((420, 345), Image.LANCZOS)
+        bg_image = bg_image.resize((420, 365), Image.LANCZOS)  # altura ajustada
         self.bg_photo = ImageTk.PhotoImage(bg_image)
 
-        self.canvas = tk.Canvas(root, width=420, height=345, highlightthickness=0)
+        self.canvas = tk.Canvas(root, width=420, height=365, highlightthickness=0)  # altura ajustada
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
@@ -38,24 +37,23 @@ class OtimizadorRPG:
                   background=[("active", "#00aaff")],
                   foreground=[("active", "white")])
 
-        # Labels status
         self.status_label = self.canvas.create_text(12, 15, text="Status: Aguardando...",
-                                                    fill="#00ffcc", anchor="nw", font=("Arila", 12, "bold"))
-        self.ping_label = self.canvas.create_text(12, 40, text="Ping: ---",
-                                                  fill="#99ff66", anchor="nw", font=("Arila", 12, "bold"))
-        self.cpu_label = self.canvas.create_text(12, 65, text="CPU Jogo: ---",
-                                                 fill="#3399ff", anchor="nw", font=("Arila", 12, "bold"))
+                                                    fill="#00ffcc", anchor="nw", font=("Arial", 12, "bold"))
+        self.cpu_label = self.canvas.create_text(12, 40, text="CPU Jogo: ---",
+                                                 fill="#3399ff", anchor="nw", font=("Arial", 12, "bold"))
 
-        # Botões
+        # Rodapé centralizado
+        self.canvas.create_text(210, 362, text="Criado por SanJéffersonBLK", anchor="s",
+                                fill="#FFFDFD", font=("Consolas", 10, "bold"))
+
         self.btn_jogo = ttk.Button(root, text="Iniciar Jogo", command=self.iniciar_jogo)
         self.btn_launcher = ttk.Button(root, text="Launcher", command=self.iniciar_launcher)
         self.btn_limpar = ttk.Button(root, text="Limpeza", command=self.limpar_temp)
 
-        # Log box
-        self.log_box = scrolledtext.ScrolledText(root, height=8, wrap=tk.WORD, font=("Consolas", 9),
-                                                 bg="#111122", fg="#00ffaa", insertbackground="white")
+        self.log_box = scrolledtext.ScrolledText(root, height=8, wrap=tk.WORD,
+                                                 font=("Consolas", 9), bg="#111122",
+                                                 fg="#00ffaa", insertbackground="white")
 
-        # Ajuste das posições e tamanhos para 420x345
         self.default_config = {
             "btn_jogo": {"x": 60.0, "y": 145.0, "width": 110, "height": 30},
             "btn_limpar": {"x": 215.0, "y": 145.0, "width": 110, "height": 30},
@@ -79,7 +77,6 @@ class OtimizadorRPG:
 
         self.load_config()
 
-        # Drag e resize
         self.drag_data = {"item": None, "x": 0, "y": 0}
         self.resize_data = {"item": None, "x": 0, "y": 0, "w": 0, "h": 0}
 
@@ -94,7 +91,7 @@ class OtimizadorRPG:
     def iniciar_jogo(self):
         self.log("Iniciando o jogo...")
         try:
-            subprocess.Popen(["RavenQuest.exe"])
+            subprocess.Popen(["RavenQuest.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
             self.canvas.itemconfig(self.status_label, text="Status: Jogo Iniciado", fill="#00ff88")
         except Exception as e:
             self.canvas.itemconfig(self.status_label, text="Status: Erro ao iniciar o jogo", fill="#ff4444")
@@ -103,7 +100,7 @@ class OtimizadorRPG:
     def iniciar_launcher(self):
         self.log("Iniciando o launcher...")
         try:
-            subprocess.Popen(["Launcher.exe"])
+            subprocess.Popen(["Launcher.exe"], creationflags=subprocess.CREATE_NO_WINDOW)
             self.canvas.itemconfig(self.status_label, text="Status: Launcher Iniciado", fill="#00ff88")
         except Exception as e:
             self.canvas.itemconfig(self.status_label, text="Status: Erro ao iniciar launcher", fill="#ff4444")
@@ -111,7 +108,6 @@ class OtimizadorRPG:
 
     def limpar_temp(self):
         self.log("Iniciando limpeza das pastas temporárias...")
-
         paths_to_clean = []
 
         temp_env = os.getenv("TEMP")
@@ -119,58 +115,38 @@ class OtimizadorRPG:
         system_temp = r"C:\Windows\Temp"
         prefetch = r"C:\Windows\Prefetch"
 
-        if temp_env and temp_env not in paths_to_clean:
-            paths_to_clean.append(temp_env)
-        if tmp_env and tmp_env not in paths_to_clean:
-            paths_to_clean.append(tmp_env)
-        if os.path.exists(system_temp) and system_temp not in paths_to_clean:
-            paths_to_clean.append(system_temp)
-        if os.path.exists(prefetch) and prefetch not in paths_to_clean:
-            paths_to_clean.append(prefetch)
+        for p in [temp_env, tmp_env, system_temp, prefetch]:
+            if p and os.path.exists(p) and p not in paths_to_clean:
+                paths_to_clean.append(p)
 
         total_deleted = 0
         errors = 0
 
         for path in paths_to_clean:
-            if os.path.exists(path):
-                self.log(f"Limpando: {path}")
-                try:
-                    for filename in os.listdir(path):
-                        file_path = os.path.join(path, filename)
-                        try:
-                            if os.path.isfile(file_path) or os.path.islink(file_path):
-                                os.remove(file_path)
-                                total_deleted += 1
-                            elif os.path.isdir(file_path):
-                                shutil.rmtree(file_path)
-                                total_deleted += 1
-                        except Exception as e:
-                            self.log(f"Erro removendo {file_path}: {e}")
-                            errors += 1
-                except Exception as e:
-                    self.log(f"Erro acessando {path}: {e}")
-                    errors += 1
+            self.log(f"Limpando: {path}")
+            try:
+                for filename in os.listdir(path):
+                    file_path = os.path.join(path, filename)
+                    try:
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                            os.remove(file_path)
+                            total_deleted += 1
+                        elif os.path.isdir(file_path):
+                            shutil.rmtree(file_path)
+                            total_deleted += 1
+                    except Exception as e:
+                        self.log(f"Erro removendo {file_path}: {e}")
+                        errors += 1
+            except Exception as e:
+                self.log(f"Erro acessando {path}: {e}")
+                errors += 1
 
         self.log(f"Limpeza concluída: {total_deleted} itens removidos, {errors} erros.")
 
     def atualizar_monitoramento(self):
         while self.monitorar:
-            self.atualizar_ping()
             self.atualizar_uso_cpu()
             time.sleep(2)
-
-    def atualizar_ping(self):
-        try:
-            resultado = subprocess.run(["ping", "-n", "1", "google.com"],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            for linha in resultado.stdout.split("\n"):
-                if "tempo=" in linha or "time=" in linha:
-                    tempo = linha.split("tempo=")[-1] if "tempo=" in linha else linha.split("time=")[-1]
-                    self.canvas.itemconfig(self.ping_label, text=f"Ping: {tempo.strip()}")
-                    return
-            self.canvas.itemconfig(self.ping_label, text="Ping: Timeout")
-        except Exception:
-            self.canvas.itemconfig(self.ping_label, text="Ping: Erro")
 
     def atualizar_uso_cpu(self):
         for proc in psutil.process_iter(['name', 'cpu_percent']):
@@ -214,11 +190,8 @@ class OtimizadorRPG:
             dy = event.y - self.drag_data["y"]
             coords = self.canvas.coords(self.widget_refs[name])
             if coords:
-                new_x = coords[0] + dx
-                new_y = coords[1] + dy
-                # Limitar para dentro da janela
-                new_x = max(0, min(new_x, 420))
-                new_y = max(0, min(new_y, 345))
+                new_x = max(0, min(coords[0] + dx, 420))
+                new_y = max(0, min(coords[1] + dy, 365))
                 self.canvas.coords(self.widget_refs[name], new_x, new_y)
                 self.drag_data["x"] = event.x
                 self.drag_data["y"] = event.y

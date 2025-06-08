@@ -5,7 +5,7 @@ a = Analysis(
     ['otimizador_ravenquest.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('background.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
