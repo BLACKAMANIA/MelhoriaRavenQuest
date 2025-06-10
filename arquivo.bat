@@ -1,14 +1,14 @@
 @echo off
-cd d CUsersJeffersonDesktopNova pasta
+echo Ativando ambiente virtual...
+call .venv\Scripts\activate
 
-echo Instalando PyInstaller (se necessário)...
-python -m pip install pyinstaller
+echo Criando executável com PyInstaller...
+pyinstaller --noconfirm --onefile --windowed ^
+--icon=icon.ico ^
+--add-data "background.png;." ^
+--add-data "interface_config.json;." ^
+otimizador_ravenquest.py
 
 echo.
-echo Compilando 'Otimizador RavenQuest' com ícone e janela oculta...
-python -m pyinstaller --noconfirm --onefile --windowed --icon=icon.ico otimizador_ravenquest.py
-
-echo.
-echo ✅ Compilação finalizada com sucesso!
-echo ➤ Executável criado em distotimizador_ravenquest.exe
+echo ✅ Executável gerado em: dist\otimizador_ravenquest.exe
 pause

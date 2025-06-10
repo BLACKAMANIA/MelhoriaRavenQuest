@@ -8,3 +8,16 @@ customtkinterpillow
 pywin32 
 pystray 
 pillow
+
+#pip install pyinstaller
+#pyinstaller --noconfirm --onefile --windowed --icon=icon.ico --add-data "background.png;." --add-data "interface_config.json;." otimizador_ravenquest.py
+#.venv\Scripts\activate
+
+projeto\
+│
+├── .venv\
+├── icon.ico
+├── background.png
+├── interface_config.json
+├── otimizador_ravenquest.py
+└── build_otimizador.bat
